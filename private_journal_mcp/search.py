@@ -12,7 +12,7 @@ from typing import Optional
 import aiofiles
 
 from . import embeddings
-from .paths import resolve_project_journal_path, resolve_user_journal_path
+from .journal import get_project_journal_path, get_user_journal_path
 from .types import EmbeddingData, SearchOptions, SearchResult
 
 
@@ -30,8 +30,8 @@ class SearchService:
             project_path: Path to project journal directory
             user_path: Path to user journal directory
         """
-        self.project_path = project_path or resolve_project_journal_path()
-        self.user_path = user_path or resolve_user_journal_path()
+        self.project_path = project_path or get_project_journal_path()
+        self.user_path = user_path or get_user_journal_path()
 
     async def search(
         self, query: str, options: Optional[SearchOptions] = None

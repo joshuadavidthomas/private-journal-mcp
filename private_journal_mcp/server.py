@@ -13,8 +13,7 @@ from typing import Optional
 
 from fastmcp import FastMCP
 
-from .journal import JournalManager
-from .paths import resolve_project_journal_path
+from .journal import JournalManager, get_project_journal_path
 from .search import SearchService
 from .types import ProcessThoughtsRequest, SearchOptions
 
@@ -229,7 +228,7 @@ def parse_arguments() -> Path:
     if args.journal_path:
         return Path(args.journal_path).resolve()
 
-    return resolve_project_journal_path()
+    return get_project_journal_path()
 
 
 async def generate_missing_embeddings() -> None:
