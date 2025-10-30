@@ -10,7 +10,7 @@ from typing import Optional
 
 import aiofiles
 
-from .embeddings import EmbeddingService
+from . import embeddings
 from .paths import resolve_project_journal_path, resolve_user_journal_path
 from .types import EmbeddingData, SearchOptions, SearchResult
 
@@ -22,16 +22,13 @@ class SearchService:
         self,
         project_path: Optional[Path] = None,
         user_path: Optional[Path] = None,
-        embedding_service: Optional[EmbeddingService] = None,
     ):
         """Initialize the search service.
 
         Args:
             project_path: Path to project journal directory
             user_path: Path to user journal directory
-            embedding_service: Optional embedding service instance (creates new if not provided)
         """
-        self.embedding_service = embedding_service or EmbeddingService()
         self.project_path = project_path or resolve_project_journal_path()
         self.user_path = user_path or resolve_user_journal_path()
 
@@ -51,7 +48,7 @@ class SearchService:
             options = SearchOptions()
 
         # Generate query embedding
-        query_embedding = await self.embedding_service.generate_embedding(query)
+        query_embedding = await embeddings.generate_embedding(query)
 
         # Collect all embeddings
         all_embeddings: list[tuple[EmbeddingData, str]] = []
@@ -98,9 +95,7 @@ class SearchService:
         # Calculate similarities and sort
         results: list[SearchResult] = []
         for embedding, entry_type in filtered:
-            score = self.embedding_service.cosine_similarity(
-                query_embedding, embedding.embedding
-            )
+            score = embeddings.cosine_similarity(query_embedding, embedding.embedding)
             excerpt = self._generate_excerpt(embedding.text, query)
 
             results.append(

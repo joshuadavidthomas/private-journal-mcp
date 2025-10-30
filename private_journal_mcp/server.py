@@ -11,7 +11,6 @@ from typing import Optional
 
 from fastmcp import FastMCP
 
-from .embeddings import EmbeddingService
 from .journal import JournalManager
 from .paths import resolve_project_journal_path
 from .search import SearchService
@@ -22,21 +21,20 @@ mcp = FastMCP("private-journal-mcp")
 
 # Module-level configuration (set by main())
 _journal_path: Optional[Path] = None
-_embedding_service: Optional[EmbeddingService] = None
 
 
 def _get_journal_manager() -> JournalManager:
-    """Get a JournalManager instance with shared embedding service."""
+    """Get a JournalManager instance."""
     if _journal_path is None:
         raise RuntimeError("Server not initialized - journal path not set")
-    return JournalManager(_journal_path, embedding_service=_embedding_service)
+    return JournalManager(_journal_path)
 
 
 def _get_search_service() -> SearchService:
-    """Get a SearchService instance with shared embedding service."""
+    """Get a SearchService instance."""
     if _journal_path is None:
         raise RuntimeError("Server not initialized - journal path not set")
-    return SearchService(_journal_path, embedding_service=_embedding_service)
+    return SearchService(_journal_path)
 
 
 @mcp.tool()
@@ -250,7 +248,7 @@ async def generate_missing_embeddings() -> None:
 
 def main() -> None:
     """Main entry point for the server."""
-    global _journal_path, _embedding_service
+    global _journal_path
 
     # Print debug info
     print("=== Private Journal MCP Server Debug Info ===", file=sys.stderr)
@@ -269,7 +267,6 @@ def main() -> None:
 
     # Initialize module-level configuration
     _journal_path = parse_arguments()
-    _embedding_service = EmbeddingService()
 
     print(f"Selected journal path: {_journal_path}", file=sys.stderr)
     print("===============================================", file=sys.stderr)

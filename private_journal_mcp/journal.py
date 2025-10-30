@@ -10,7 +10,7 @@ from typing import Optional
 
 import aiofiles
 
-from .embeddings import EmbeddingService
+from . import embeddings
 from .paths import resolve_user_journal_path
 from .types import EmbeddingData, ProcessThoughtsRequest
 
@@ -22,14 +22,12 @@ class JournalManager:
         self,
         project_journal_path: Path,
         user_journal_path: Optional[Path] = None,
-        embedding_service: Optional[EmbeddingService] = None,
     ):
         """Initialize the journal manager.
 
         Args:
             project_journal_path: Path for project-specific journal entries
             user_journal_path: Path for user-global journal entries
-            embedding_service: Optional embedding service instance (creates new if not provided)
         """
         self.project_journal_path = Path(project_journal_path)
         self.user_journal_path = (
@@ -37,7 +35,6 @@ class JournalManager:
             if user_journal_path
             else resolve_user_journal_path()
         )
-        self.embedding_service = embedding_service or EmbeddingService()
 
     async def write_entry(self, content: str) -> None:
         """Write a simple journal entry.
@@ -186,12 +183,12 @@ timestamp: {int(timestamp.timestamp() * 1000)}
     ) -> None:
         """Generate and save embedding for a journal entry."""
         try:
-            text, sections = self.embedding_service.extract_searchable_text(content)
+            text, sections = embeddings.extract_searchable_text(content)
 
             if not text.strip():
                 return  # Skip empty entries
 
-            embedding = await self.embedding_service.generate_embedding(text)
+            embedding = await embeddings.generate_embedding(text)
 
             embedding_data = EmbeddingData(
                 embedding=embedding,
@@ -201,7 +198,7 @@ timestamp: {int(timestamp.timestamp() * 1000)}
                 path=str(file_path),
             )
 
-            await self.embedding_service.save_embedding(file_path, embedding_data)
+            await embeddings.save_embedding(file_path, embedding_data)
         except Exception as e:
             print(
                 f"Failed to generate embedding for {file_path}: {e}", file=sys.stderr
