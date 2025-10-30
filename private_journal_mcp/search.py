@@ -19,15 +19,19 @@ class SearchService:
     """Service for searching journal entries using semantic similarity."""
 
     def __init__(
-        self, project_path: Optional[Path] = None, user_path: Optional[Path] = None
+        self,
+        project_path: Optional[Path] = None,
+        user_path: Optional[Path] = None,
+        embedding_service: Optional[EmbeddingService] = None,
     ):
         """Initialize the search service.
 
         Args:
             project_path: Path to project journal directory
             user_path: Path to user journal directory
+            embedding_service: Optional embedding service instance (creates new if not provided)
         """
-        self.embedding_service = EmbeddingService.get_instance()
+        self.embedding_service = embedding_service or EmbeddingService()
         self.project_path = project_path or resolve_project_journal_path()
         self.user_path = user_path or resolve_user_journal_path()
 

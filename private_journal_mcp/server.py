@@ -11,6 +11,7 @@ from typing import Optional
 
 from fastmcp import FastMCP
 
+from .embeddings import EmbeddingService
 from .journal import JournalManager
 from .paths import resolve_project_journal_path
 from .search import SearchService
@@ -19,22 +20,23 @@ from .types import ProcessThoughtsRequest, SearchOptions
 # Create FastMCP server instance
 mcp = FastMCP("private-journal-mcp")
 
-# Global instances
-journal_manager: Optional[JournalManager] = None
-search_service: Optional[SearchService] = None
+# Module-level configuration (set by main())
+_journal_path: Optional[Path] = None
+_embedding_service: Optional[EmbeddingService] = None
 
 
-def initialize_services(journal_path: Path) -> None:
-    """Initialize journal and search services.
+def _get_journal_manager() -> JournalManager:
+    """Get a JournalManager instance with shared embedding service."""
+    if _journal_path is None:
+        raise RuntimeError("Server not initialized - journal path not set")
+    return JournalManager(_journal_path, embedding_service=_embedding_service)
 
-    Args:
-        journal_path: Path to the journal directory
-    """
-    global journal_manager, search_service
 
-    print(f"Selected journal path: {journal_path}", file=sys.stderr)
-    journal_manager = JournalManager(journal_path)
-    search_service = SearchService(journal_path)
+def _get_search_service() -> SearchService:
+    """Get a SearchService instance with shared embedding service."""
+    if _journal_path is None:
+        raise RuntimeError("Server not initialized - journal path not set")
+    return SearchService(_journal_path, embedding_service=_embedding_service)
 
 
 @mcp.tool()
@@ -79,9 +81,6 @@ async def process_thoughts(
     Returns:
         Success message
     """
-    if journal_manager is None:
-        raise RuntimeError("Journal manager not initialized")
-
     thoughts = ProcessThoughtsRequest(
         feelings=feelings,
         project_notes=project_notes,
@@ -104,6 +103,7 @@ async def process_thoughts(
     if not has_content:
         raise ValueError("At least one thought category must be provided")
 
+    journal_manager = _get_journal_manager()
     await journal_manager.write_thoughts(thoughts)
     return "Thoughts recorded successfully."
 
@@ -130,11 +130,9 @@ async def search_journal(
     Returns:
         Formatted search results with relevance scores
     """
-    if search_service is None:
-        raise RuntimeError("Search service not initialized")
-
     options = SearchOptions(limit=limit, type=type, sections=sections)
 
+    search_service = _get_search_service()
     results = await search_service.search(query, options)
 
     if not results:
@@ -163,9 +161,7 @@ async def read_journal_entry(path: str) -> str:
     Returns:
         Full content of the journal entry
     """
-    if search_service is None:
-        raise RuntimeError("Search service not initialized")
-
+    search_service = _get_search_service()
     content = await search_service.read_entry(path)
 
     if content is None:
@@ -189,14 +185,12 @@ async def list_recent_entries(
     Returns:
         List of recent entries with metadata
     """
-    if search_service is None:
-        raise RuntimeError("Search service not initialized")
-
     start_date = datetime.now() - timedelta(days=days)
     options = SearchOptions(
         limit=limit, type=type, date_range_start=start_date
     )
 
+    search_service = _get_search_service()
     results = await search_service.list_recent(options)
 
     if not results:
@@ -240,11 +234,9 @@ def parse_arguments() -> Path:
 
 async def generate_missing_embeddings() -> None:
     """Generate embeddings for entries that don't have them yet."""
-    if journal_manager is None:
-        return
-
     try:
         print("Checking for missing embeddings...", file=sys.stderr)
+        journal_manager = _get_journal_manager()
         count = await journal_manager.generate_missing_embeddings()
         if count > 0:
             print(
@@ -258,6 +250,8 @@ async def generate_missing_embeddings() -> None:
 
 def main() -> None:
     """Main entry point for the server."""
+    global _journal_path, _embedding_service
+
     # Print debug info
     print("=== Private Journal MCP Server Debug Info ===", file=sys.stderr)
     print(f"Python version: {sys.version}", file=sys.stderr)
@@ -273,9 +267,11 @@ def main() -> None:
         value = os.environ.get(var, "undefined")
         print(f"  {var}: {value}", file=sys.stderr)
 
-    journal_path = parse_arguments()
-    initialize_services(journal_path)
+    # Initialize module-level configuration
+    _journal_path = parse_arguments()
+    _embedding_service = EmbeddingService()
 
+    print(f"Selected journal path: {_journal_path}", file=sys.stderr)
     print("===============================================", file=sys.stderr)
 
     # Run startup tasks before starting server

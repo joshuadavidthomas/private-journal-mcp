@@ -15,24 +15,12 @@ from .types import EmbeddingData
 
 
 class EmbeddingService:
-    """Singleton service for generating and managing embeddings."""
+    """Service for generating and managing embeddings using sentence-transformers."""
 
-    _instance: Optional["EmbeddingService"] = None
-    _model = None
-    _model_name = "all-MiniLM-L6-v2"
-
-    def __new__(cls) -> "EmbeddingService":
-        """Singleton pattern implementation."""
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-        return cls._instance
-
-    @classmethod
-    def get_instance(cls) -> "EmbeddingService":
-        """Get or create the singleton instance."""
-        if cls._instance is None:
-            cls._instance = cls()
-        return cls._instance
+    def __init__(self):
+        """Initialize the embedding service."""
+        self._model = None
+        self._model_name = "all-MiniLM-L6-v2"
 
     def _initialize_model(self):
         """Lazy initialization of the sentence transformer model."""

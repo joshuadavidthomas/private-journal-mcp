@@ -19,13 +19,17 @@ class JournalManager:
     """Manages journal entries and embeddings."""
 
     def __init__(
-        self, project_journal_path: Path, user_journal_path: Optional[Path] = None
+        self,
+        project_journal_path: Path,
+        user_journal_path: Optional[Path] = None,
+        embedding_service: Optional[EmbeddingService] = None,
     ):
         """Initialize the journal manager.
 
         Args:
             project_journal_path: Path for project-specific journal entries
             user_journal_path: Path for user-global journal entries
+            embedding_service: Optional embedding service instance (creates new if not provided)
         """
         self.project_journal_path = Path(project_journal_path)
         self.user_journal_path = (
@@ -33,7 +37,7 @@ class JournalManager:
             if user_journal_path
             else resolve_user_journal_path()
         )
-        self.embedding_service = EmbeddingService.get_instance()
+        self.embedding_service = embedding_service or EmbeddingService()
 
     async def write_entry(self, content: str) -> None:
         """Write a simple journal entry.
