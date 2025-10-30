@@ -23,9 +23,11 @@ A comprehensive MCP (Model Context Protocol) server that provides Claude with pr
 
 ## Installation
 
-This server is run directly from GitHub using `npx` - no installation required.
+This server is available in both TypeScript and Python implementations. Choose the one you prefer:
 
-## MCP Configuration
+### TypeScript (Node.js)
+
+Run directly from GitHub using `npx` - no installation required:
 
 #### Claude Code (One-liner)
 ```bash
@@ -46,7 +48,30 @@ Add to your MCP settings (e.g., Claude Desktop configuration):
 }
 ```
 
-The server will automatically find a suitable location for the journal files.
+### Python (with uv)
+
+Run directly using `uvx` - no installation required:
+
+#### Claude Code (One-liner)
+```bash
+claude mcp add-json private-journal '{"type":"stdio","command":"uvx","args":["--from","git+https://github.com/obra/private-journal-mcp","private-journal-mcp"]}' -s user
+```
+
+#### Manual Configuration
+Add to your MCP settings:
+
+```json
+{
+  "mcpServers": {
+    "private-journal": {
+      "command": "uvx",
+      "args": ["--from", "git+https://github.com/obra/private-journal-mcp", "private-journal-mcp"]
+    }
+  }
+}
+```
+
+Both versions provide identical functionality and automatically find suitable locations for journal files.
 
 ## MCP Tools
 
@@ -118,22 +143,44 @@ Vector embeddings provide semantic understanding...
 
 ## Development
 
-### Building
+### TypeScript Development
 
+#### Building
 ```bash
 npm run build
 ```
 
-### Testing
-
+#### Testing
 ```bash
 npm test
 ```
 
-### Development Mode
-
+#### Development Mode
 ```bash
 npm run dev
+```
+
+### Python Development
+
+#### Setup
+```bash
+# Install dependencies
+uv sync --dev
+```
+
+#### Testing
+```bash
+# Run tests
+uv run pytest
+
+# Run tests with coverage
+uv run pytest --cov=private_journal_mcp
+```
+
+#### Running Locally
+```bash
+# Run the server directly
+uv run python -m private_journal_mcp.server
 ```
 
 ### Improving Claude's Performance
