@@ -3,6 +3,8 @@
 Handles file system operations, timestamps, and markdown formatting.
 """
 
+import random
+import re
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -102,8 +104,6 @@ class JournalManager:
 
     def _format_timestamp(self, date: datetime) -> str:
         """Format timestamp with microseconds as HH-MM-SS-μμμμμμ."""
-        import random
-
         hours = date.strftime("%H")
         minutes = date.strftime("%M")
         seconds = date.strftime("%S")
@@ -258,8 +258,6 @@ timestamp: {int(timestamp.timestamp() * 1000)}
 
     def _extract_timestamp_from_path(self, file_path: Path) -> Optional[datetime]:
         """Extract timestamp from file path."""
-        import re
-
         filename = file_path.stem
         match = re.match(r"^(\d{2})-(\d{2})-(\d{2})-\d{6}$", filename)
 

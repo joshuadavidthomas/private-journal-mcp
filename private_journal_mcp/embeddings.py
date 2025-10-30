@@ -9,7 +9,9 @@ import sys
 from pathlib import Path
 from typing import Optional
 
+import aiofiles
 import numpy as np
+from sentence_transformers import SentenceTransformer
 
 from .types import EmbeddingData
 
@@ -24,8 +26,6 @@ def _get_model():
     if _model is None:
         try:
             print("Loading embedding model...", file=sys.stderr)
-            from sentence_transformers import SentenceTransformer
-
             _model = SentenceTransformer(_model_name)
             print("Embedding model loaded successfully", file=sys.stderr)
         except Exception as e:
@@ -89,8 +89,6 @@ async def save_embedding(file_path: Path, embedding_data: EmbeddingData) -> None
         file_path: Path to the markdown file
         embedding_data: The embedding data to save
     """
-    import aiofiles
-
     embedding_path = file_path.with_suffix(".embedding")
     async with aiofiles.open(embedding_path, "w", encoding="utf-8") as f:
         await f.write(json.dumps(embedding_data.__dict__, indent=2))
@@ -105,8 +103,6 @@ async def load_embedding(file_path: Path) -> Optional[EmbeddingData]:
     Returns:
         EmbeddingData if found, None otherwise
     """
-    import aiofiles
-
     embedding_path = file_path.with_suffix(".embedding")
 
     try:

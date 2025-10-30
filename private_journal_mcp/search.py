@@ -5,6 +5,7 @@ Provides unified search across project and user journal entries.
 
 import json
 import sys
+from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
@@ -82,8 +83,6 @@ class SearchService:
 
             # Filter by date range
             if options.date_range_start or options.date_range_end:
-                from datetime import datetime
-
                 entry_date = datetime.fromtimestamp(embedding.timestamp / 1000)
                 if options.date_range_start and entry_date < options.date_range_start:
                     continue
@@ -148,8 +147,6 @@ class SearchService:
         # Filter by date range
         filtered = []
         if options.date_range_start or options.date_range_end:
-            from datetime import datetime
-
             for embedding, entry_type in all_embeddings:
                 entry_date = datetime.fromtimestamp(embedding.timestamp / 1000)
                 if options.date_range_start and entry_date < options.date_range_start:

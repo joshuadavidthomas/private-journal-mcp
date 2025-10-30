@@ -4,6 +4,8 @@ Provides tools for processing thoughts and searching journal entries.
 """
 
 import argparse
+import asyncio
+import os
 import sys
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -272,7 +274,6 @@ def main() -> None:
     print("===============================================", file=sys.stderr)
 
     # Run startup tasks before starting server
-    import asyncio
     asyncio.run(generate_missing_embeddings())
 
     # Run the FastMCP server
@@ -280,5 +281,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    import os
     main()
