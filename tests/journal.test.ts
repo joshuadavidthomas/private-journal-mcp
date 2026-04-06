@@ -125,16 +125,16 @@ describe('JournalManager', () => {
 
   test('handles empty content', async () => {
     const content = '';
-    
+
     await journalManager.writeEntry(content);
 
     const today = new Date();
     const dateString = getFormattedDate(today);
     const dayDir = path.join(projectTempDir, dateString);
     const files = await fs.readdir(dayDir);
-    
-    expect(files).toHaveLength(2); // .md and .embedding files
-    
+
+    expect(files).toHaveLength(1); // .md only, no embedding for empty content
+
     const filePath = path.join(dayDir, files[0]);
     const fileContent = await fs.readFile(filePath, 'utf8');
     
@@ -172,11 +172,11 @@ describe('JournalManager', () => {
     const projectDayDir = path.join(projectTempDir, dateString);
     
     const projectFiles = await fs.readdir(projectDayDir);
-    expect(projectFiles).toHaveLength(1);
-    
-    const projectFilePath = path.join(projectDayDir, projectFiles[0]);
-    const projectContent = await fs.readFile(projectFilePath, 'utf8');
-    
+    expect(projectFiles).toHaveLength(2); // .md and .embedding
+
+    const projectMdFile = projectFiles.find(f => f.endsWith('.md'))!;
+    const projectContent = await fs.readFile(path.join(projectDayDir, projectMdFile), 'utf8');
+
     expect(projectContent).toContain('## Project Notes');
     expect(projectContent).toContain('The architecture is solid');
     expect(projectContent).not.toContain('## Feelings');
@@ -187,18 +187,18 @@ describe('JournalManager', () => {
       feelings: 'I feel great about this feature',
       technical_insights: 'TypeScript interfaces are powerful'
     };
-    
+
     await journalManager.writeThoughts(thoughts);
 
     const today = new Date();
     const dateString = getFormattedDate(today);
     const userDayDir = path.join(userTempDir, '.private-journal', dateString);
-    
+
     const userFiles = await fs.readdir(userDayDir);
-    expect(userFiles).toHaveLength(1);
-    
-    const userFilePath = path.join(userDayDir, userFiles[0]);
-    const userContent = await fs.readFile(userFilePath, 'utf8');
+    expect(userFiles).toHaveLength(2); // .md and .embedding
+
+    const userMdFile = userFiles.find(f => f.endsWith('.md'))!;
+    const userContent = await fs.readFile(path.join(userDayDir, userMdFile), 'utf8');
     
     expect(userContent).toContain('## Feelings');
     expect(userContent).toContain('I feel great about this feature');
@@ -224,19 +224,21 @@ describe('JournalManager', () => {
     // Check project directory
     const projectDayDir = path.join(projectTempDir, dateString);
     const projectFiles = await fs.readdir(projectDayDir);
-    expect(projectFiles).toHaveLength(1);
-    
-    const projectContent = await fs.readFile(path.join(projectDayDir, projectFiles[0]), 'utf8');
+    expect(projectFiles).toHaveLength(2); // .md and .embedding
+
+    const projectMdFile = projectFiles.find(f => f.endsWith('.md'))!;
+    const projectContent = await fs.readFile(path.join(projectDayDir, projectMdFile), 'utf8');
     expect(projectContent).toContain('## Project Notes');
     expect(projectContent).toContain('The architecture is solid');
     expect(projectContent).not.toContain('## Feelings');
-    
+
     // Check user directory
     const userDayDir = path.join(userTempDir, '.private-journal', dateString);
     const userFiles = await fs.readdir(userDayDir);
-    expect(userFiles).toHaveLength(1);
-    
-    const userContent = await fs.readFile(path.join(userDayDir, userFiles[0]), 'utf8');
+    expect(userFiles).toHaveLength(2); // .md and .embedding
+
+    const userMdFile = userFiles.find(f => f.endsWith('.md'))!;
+    const userContent = await fs.readFile(path.join(userDayDir, userMdFile), 'utf8');
     expect(userContent).toContain('## Feelings');
     expect(userContent).toContain('## User Context');
     expect(userContent).toContain('## Technical Insights');
@@ -257,9 +259,10 @@ describe('JournalManager', () => {
     // Should only create user directory, not project directory
     const userDayDir = path.join(userTempDir, '.private-journal', dateString);
     const userFiles = await fs.readdir(userDayDir);
-    expect(userFiles).toHaveLength(1);
-    
-    const userContent = await fs.readFile(path.join(userDayDir, userFiles[0]), 'utf8');
+    expect(userFiles).toHaveLength(2); // .md and .embedding
+
+    const userMdFile = userFiles.find(f => f.endsWith('.md'))!;
+    const userContent = await fs.readFile(path.join(userDayDir, userMdFile), 'utf8');
     expect(userContent).toContain('## World Knowledge');
     expect(userContent).toContain('Learned something interesting about databases');
     
@@ -281,9 +284,10 @@ describe('JournalManager', () => {
     // Should only create project directory, not user directory
     const projectDayDir = path.join(projectTempDir, dateString);
     const projectFiles = await fs.readdir(projectDayDir);
-    expect(projectFiles).toHaveLength(1);
-    
-    const projectContent = await fs.readFile(path.join(projectDayDir, projectFiles[0]), 'utf8');
+    expect(projectFiles).toHaveLength(2); // .md and .embedding
+
+    const projectMdFile = projectFiles.find(f => f.endsWith('.md'))!;
+    const projectContent = await fs.readFile(path.join(projectDayDir, projectMdFile), 'utf8');
     expect(projectContent).toContain('## Project Notes');
     expect(projectContent).toContain('This specific codebase pattern works well');
     
@@ -305,9 +309,10 @@ describe('JournalManager', () => {
       const customDayDir = path.join(customUserDir, dateString);
       
       const customFiles = await fs.readdir(customDayDir);
-      expect(customFiles).toHaveLength(1);
-      
-      const customContent = await fs.readFile(path.join(customDayDir, customFiles[0]), 'utf8');
+      expect(customFiles).toHaveLength(2); // .md and .embedding
+
+      const customMdFile = customFiles.find(f => f.endsWith('.md'))!;
+      const customContent = await fs.readFile(path.join(customDayDir, customMdFile), 'utf8');
       expect(customContent).toContain('Testing custom path');
     } finally {
       await fs.rm(customUserDir, { recursive: true, force: true });
