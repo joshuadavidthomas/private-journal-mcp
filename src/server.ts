@@ -7,9 +7,9 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
-import { JournalManager } from './journal';
-import { ProcessFeelingsRequest, ProcessThoughtsRequest } from './types';
-import { SearchService } from './search';
+import { JournalManager } from './journal.js';
+import { ProcessFeelingsRequest, ProcessThoughtsRequest } from './types.js';
+import { SearchService } from './search.js';
 
 export class PrivateJournalServer {
   private server: Server;

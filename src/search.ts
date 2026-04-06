@@ -3,8 +3,8 @@
 
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { EmbeddingService, EmbeddingData } from './embeddings';
-import { resolveUserJournalPath, resolveProjectJournalPath } from './paths';
+import { EmbeddingService, EmbeddingData } from './embeddings.js';
+import { resolveUserJournalPath, resolveProjectJournalPath } from './paths.js';
 
 export interface SearchResult {
   path: string;
