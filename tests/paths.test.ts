@@ -84,11 +84,57 @@ describe('Path resolution utilities', () => {
     // Simulate no reasonable project directory
     jest.spyOn(process, 'cwd').mockReturnValue('/');
     process.env.HOME = '/Users/test';
-    
+
     const userPath = resolveUserJournalPath();
     const projectPath = resolveProjectJournalPath();
-    
+
     expect(userPath).toBe('/Users/test/.private-journal');
     expect(projectPath).toBe('/Users/test/.private-journal');
+  });
+
+  describe('PRIVATE_JOURNAL_PATH override', () => {
+    test('resolveJournalPath uses PRIVATE_JOURNAL_PATH when set', () => {
+      process.env.PRIVATE_JOURNAL_PATH = '/data/journals';
+      process.env.HOME = '/Users/test';
+      jest.spyOn(process, 'cwd').mockReturnValue('/Users/test/projects/my-app');
+
+      const result = resolveJournalPath('.private-journal', true);
+      expect(result).toBe('/data/journals');
+    });
+
+    test('resolveUserJournalPath uses PRIVATE_JOURNAL_PATH when set', () => {
+      process.env.PRIVATE_JOURNAL_PATH = '/data/journals';
+      process.env.HOME = '/Users/test';
+
+      const result = resolveUserJournalPath();
+      expect(result).toBe('/data/journals');
+    });
+
+    test('resolveProjectJournalPath uses PRIVATE_JOURNAL_PATH when set', () => {
+      process.env.PRIVATE_JOURNAL_PATH = '/data/journals';
+      jest.spyOn(process, 'cwd').mockReturnValue('/Users/test/projects/my-app');
+
+      const result = resolveProjectJournalPath();
+      expect(result).toBe('/data/journals');
+    });
+
+    test('PRIVATE_JOURNAL_PATH makes user and project paths identical', () => {
+      process.env.PRIVATE_JOURNAL_PATH = '/container/journal-data';
+      process.env.HOME = '/Users/test';
+      jest.spyOn(process, 'cwd').mockReturnValue('/Users/test/projects/my-app');
+
+      const userPath = resolveUserJournalPath();
+      const projectPath = resolveProjectJournalPath();
+
+      expect(userPath).toBe('/container/journal-data');
+      expect(projectPath).toBe('/container/journal-data');
+    });
+
+    test('PRIVATE_JOURNAL_PATH ignores subdirectory parameter', () => {
+      process.env.PRIVATE_JOURNAL_PATH = '/data/journals';
+
+      const result = resolveJournalPath('.some-other-name', true);
+      expect(result).toBe('/data/journals');
+    });
   });
 });

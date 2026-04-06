@@ -41,7 +41,7 @@ This is an MCP (Model Context Protocol) server that provides Claude with private
 - `src/types.ts` - TypeScript interfaces for the domain model
 
 **Key Architecture Patterns:**
-- **Path Resolution Strategy**: Falls back through CWD → HOME → temp directories, avoiding system roots
+- **Path Resolution Strategy**: `PRIVATE_JOURNAL_PATH` env var overrides all resolution; otherwise falls back through CWD → HOME → temp directories, avoiding system roots
 - **Timestamped Storage**: Uses `YYYY-MM-DD/HH-MM-SS-μμμμμμ.md` structure with microsecond precision
 - **YAML Frontmatter**: Each entry includes structured metadata (title, ISO date, Unix timestamp)
 - **MCP Tool Pattern**: Single tool registration with schema validation and error handling

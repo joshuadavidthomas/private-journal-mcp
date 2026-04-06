@@ -10,6 +10,11 @@ import * as path from 'path';
  * @returns resolved path to journal directory
  */
 export function resolveJournalPath(subdirectory: string = '.private-journal', includeCurrentDirectory: boolean = true): string {
+  // PRIVATE_JOURNAL_PATH overrides all other resolution logic
+  if (process.env.PRIVATE_JOURNAL_PATH) {
+    return process.env.PRIVATE_JOURNAL_PATH;
+  }
+
   const possiblePaths = [];
 
   // Try current working directory only if requested and it's reasonable

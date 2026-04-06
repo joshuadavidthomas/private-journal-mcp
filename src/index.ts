@@ -40,6 +40,7 @@ async function main(): Promise<void> {
     console.error(`  USERPROFILE: ${process.env.USERPROFILE || 'undefined'}`);
     console.error(`  TEMP: ${process.env.TEMP || 'undefined'}`);
     console.error(`  TMP: ${process.env.TMP || 'undefined'}`);
+    console.error(`  PRIVATE_JOURNAL_PATH: ${process.env.PRIVATE_JOURNAL_PATH || 'undefined'}`);
     console.error(`  USER: ${process.env.USER || 'undefined'}`);
     console.error(`  USERNAME: ${process.env.USERNAME || 'undefined'}`);
     

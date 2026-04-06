@@ -48,6 +48,38 @@ Add to your MCP settings (e.g., Claude Desktop configuration):
 
 The server will automatically find a suitable location for the journal files.
 
+### Configuration
+
+#### `PRIVATE_JOURNAL_PATH` environment variable
+
+Set `PRIVATE_JOURNAL_PATH` to override all journal storage to a single directory. This is useful for containerized deployments where the default home directory resolution doesn't apply:
+
+```json
+{
+  "mcpServers": {
+    "private-journal": {
+      "command": "npx",
+      "args": ["github:obra/private-journal-mcp"],
+      "env": {
+        "PRIVATE_JOURNAL_PATH": "/data/journals"
+      }
+    }
+  }
+}
+```
+
+When set, both project and user journals are written to the specified path, bypassing all fallback resolution logic.
+
+#### `--journal-path` CLI argument
+
+You can also set the project journal path via CLI argument:
+
+```bash
+npx github:obra/private-journal-mcp --journal-path /path/to/journals
+```
+
+This only overrides the project journal path. The user journal path still resolves via `PRIVATE_JOURNAL_PATH` or the default home directory logic.
+
 ## MCP Tools
 
 The server provides comprehensive journaling and search capabilities:
