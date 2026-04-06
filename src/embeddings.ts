@@ -18,6 +18,7 @@ export class EmbeddingService {
   private extractor: FeatureExtractionPipeline | null = null;
   private readonly modelName = 'Xenova/all-MiniLM-L6-v2';
   private initPromise: Promise<void> | null = null;
+  initTimeoutMs = 30_000;
 
   private constructor() {}
 
@@ -26,6 +27,10 @@ export class EmbeddingService {
       EmbeddingService.instance = new EmbeddingService();
     }
     return EmbeddingService.instance;
+  }
+
+  static resetInstance(): void {
+    EmbeddingService.instance = undefined as any;
   }
 
   async initialize(): Promise<void> {
@@ -38,13 +43,27 @@ export class EmbeddingService {
   }
 
   private async doInitialize(): Promise<void> {
+    let timeoutId: ReturnType<typeof setTimeout>;
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      timeoutId = setTimeout(() => reject(new Error(
+        `Model loading timed out after ${this.initTimeoutMs / 1000}s. ` +
+        `This may be caused by stale lock files. ` +
+        `Try: rm -rf ~/.cache/huggingface/hub/.locks/`
+      )), this.initTimeoutMs);
+    });
     try {
       console.error('Loading embedding model...');
-      this.extractor = await pipeline('feature-extraction', this.modelName);
+      this.extractor = await Promise.race([
+        pipeline('feature-extraction', this.modelName),
+        timeoutPromise,
+      ]);
       console.error('Embedding model loaded successfully');
     } catch (error) {
+      this.initPromise = null; // Allow retry on next call
       console.error('Failed to load embedding model:', error);
       throw error;
+    } finally {
+      clearTimeout(timeoutId!);
     }
   }
 

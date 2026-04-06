@@ -177,4 +177,57 @@ TypeScript interfaces are really powerful for maintaining code quality.`;
       expect(userResults[0].type).toBe('user');
     }
   }, 90000);
+
+  describe('initialization timeout', () => {
+    let originalPipelineMock: jest.Mock;
+
+    beforeEach(() => {
+      // Reset the singleton so we get a fresh instance
+      EmbeddingService.resetInstance();
+      // Save the original mock
+      const transformers = require('@xenova/transformers');
+      originalPipelineMock = transformers.pipeline;
+    });
+
+    afterEach(() => {
+      // Restore the original mock
+      const transformers = require('@xenova/transformers');
+      transformers.pipeline = originalPipelineMock;
+      // Reset singleton for other tests
+      EmbeddingService.resetInstance();
+    });
+
+    test('times out if model loading hangs', async () => {
+      // Override pipeline mock to never resolve
+      const transformers = require('@xenova/transformers');
+      transformers.pipeline = jest.fn(() => new Promise(() => {}));
+
+      const service = EmbeddingService.getInstance();
+      service.initTimeoutMs = 100; // 100ms for fast test
+
+      await expect(service.generateEmbedding('test'))
+        .rejects.toThrow(/timed out/i);
+    });
+
+    test('can retry after timeout', async () => {
+      const transformers = require('@xenova/transformers');
+
+      // First call: hang forever
+      transformers.pipeline = jest.fn(() => new Promise(() => {}));
+
+      const service = EmbeddingService.getInstance();
+      service.initTimeoutMs = 100;
+
+      await expect(service.generateEmbedding('test'))
+        .rejects.toThrow(/timed out/i);
+
+      // Second call: succeed
+      transformers.pipeline = originalPipelineMock;
+      service.initTimeoutMs = 30_000;
+
+      const embedding = await service.generateEmbedding('retry test');
+      expect(Array.isArray(embedding)).toBe(true);
+      expect(embedding.length).toBeGreaterThan(0);
+    });
+  });
 });
