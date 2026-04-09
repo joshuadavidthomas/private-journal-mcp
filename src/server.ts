@@ -132,6 +132,27 @@ export class PrivateJournalServer {
             required: [],
           },
         },
+        {
+          name: 'read_recent_entries',
+          description: "Read the full content of your most recent journal entries.",
+          inputSchema: {
+            type: 'object',
+            properties: {
+              limit: {
+                type: 'number',
+                description: "Number of recent entries to read (default: 5)",
+                default: 5,
+              },
+              type: {
+                type: 'string',
+                enum: ['project', 'user', 'both'],
+                description: "Read project-specific notes, user-global notes, or both (default: both)",
+                default: 'both',
+              },
+            },
+            required: [],
+          },
+        },
       ],
     }));
 
@@ -281,6 +302,32 @@ export class PrivateJournalServer {
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
           throw new Error(`Failed to list recent entries: ${errorMessage}`);
+        }
+      }
+
+      if (request.params.name === 'read_recent_entries') {
+        const limit = typeof args?.limit === 'number' ? args.limit : 5;
+        const type = typeof args?.type === 'string' ? args.type as 'project' | 'user' | 'both' : 'both';
+
+        try {
+          const results = await this.searchService.readRecentEntries({ limit, type });
+          return {
+            content: [
+              {
+                type: 'text',
+                text: results.length > 0
+                  ? results.map((entry, i) =>
+                      `--- Entry ${i + 1} (${new Date(entry.timestamp).toLocaleDateString()}, ${entry.type}) ---\n` +
+                      `Path: ${entry.path}\n\n` +
+                      entry.content
+                    ).join('\n\n')
+                  : 'No recent entries found.',
+              },
+            ],
+          };
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+          throw new Error(`Failed to read recent entries: ${errorMessage}`);
         }
       }
 

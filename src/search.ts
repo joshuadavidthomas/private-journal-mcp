@@ -16,6 +16,14 @@ export interface SearchResult {
   type: 'project' | 'user';
 }
 
+export interface RecentEntryResult {
+  path: string;
+  content: string;
+  sections: string[];
+  timestamp: number;
+  type: 'project' | 'user';
+}
+
 export interface SearchOptions {
   limit?: number;
   minScore?: number;
@@ -148,6 +156,28 @@ export class SearchService {
         excerpt: this.generateExcerpt(embedding.text, '', 150),
         type: embedding.type
       }));
+
+    return results;
+  }
+
+  async readRecentEntries(options: { limit?: number; type?: 'project' | 'user' | 'both' } = {}): Promise<RecentEntryResult[]> {
+    const { limit = 5, type = 'both' } = options;
+
+    const recent = await this.listRecent({ limit, type });
+
+    const results: RecentEntryResult[] = [];
+    for (const entry of recent) {
+      const content = await this.readEntry(entry.path);
+      if (content !== null) {
+        results.push({
+          path: entry.path,
+          content,
+          sections: entry.sections,
+          timestamp: entry.timestamp,
+          type: entry.type,
+        });
+      }
+    }
 
     return results;
   }

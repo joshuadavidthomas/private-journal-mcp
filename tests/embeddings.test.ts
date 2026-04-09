@@ -178,6 +178,69 @@ TypeScript interfaces are really powerful for maintaining code quality.`;
     }
   }, 90000);
 
+  describe('readRecentEntries', () => {
+    test('returns full content of the N most recent entries', async () => {
+      // Write 3 entries with slight delays so timestamps differ
+      await journalManager.writeThoughts({
+        project_notes: 'First entry about architecture'
+      });
+      await new Promise(resolve => setTimeout(resolve, 50));
+
+      await journalManager.writeThoughts({
+        project_notes: 'Second entry about testing'
+      });
+      await new Promise(resolve => setTimeout(resolve, 50));
+
+      await journalManager.writeThoughts({
+        project_notes: 'Third entry about deployment'
+      });
+
+      const results = await searchService.readRecentEntries({ limit: 2 });
+
+      expect(results).toHaveLength(2);
+      // Most recent first
+      expect(results[0].content).toContain('Third entry about deployment');
+      expect(results[1].content).toContain('Second entry about testing');
+      // Each result should have path and timestamp
+      expect(results[0].path).toBeDefined();
+      expect(results[0].timestamp).toBeGreaterThan(0);
+    }, 60000);
+
+    test('defaults to 5 entries', async () => {
+      // Write 7 entries
+      for (let i = 1; i <= 7; i++) {
+        await journalManager.writeThoughts({
+          project_notes: `Entry number ${i}`
+        });
+        if (i < 7) await new Promise(resolve => setTimeout(resolve, 50));
+      }
+
+      const results = await searchService.readRecentEntries();
+
+      expect(results).toHaveLength(5);
+      // Most recent first
+      expect(results[0].content).toContain('Entry number 7');
+      expect(results[4].content).toContain('Entry number 3');
+    }, 90000);
+
+    test('returns fewer entries when fewer exist', async () => {
+      await journalManager.writeThoughts({
+        project_notes: 'Only entry'
+      });
+
+      const results = await searchService.readRecentEntries({ limit: 5 });
+
+      expect(results).toHaveLength(1);
+      expect(results[0].content).toContain('Only entry');
+    }, 60000);
+
+    test('returns empty array when no entries exist', async () => {
+      const results = await searchService.readRecentEntries();
+
+      expect(results).toHaveLength(0);
+    });
+  });
+
   describe('initialization timeout', () => {
     let originalPipelineMock: jest.Mock;
 
