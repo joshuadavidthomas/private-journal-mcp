@@ -65,6 +65,55 @@ describe('JournalManager', () => {
     expect(projectContent).not.toContain('## Reflections');
   });
 
+  test('writeThoughts produces filenames with microsecond precision', async () => {
+    await journalManager.writeThoughts({
+      reflections: 'Filename format check'
+    });
+
+    const today = new Date();
+    const dateString = getFormattedDate(today);
+    const userDayDir = path.join(userTempDir, '.private-journal', dateString);
+    const userFiles = await fs.readdir(userDayDir);
+
+    const mdFile = userFiles.find(f => f.endsWith('.md'));
+    expect(mdFile).toBeDefined();
+    expect(mdFile).toMatch(/^\d{2}-\d{2}-\d{2}-\d{6}\.md$/);
+  });
+
+  test('writeThoughts emits well-formed YAML frontmatter', async () => {
+    await journalManager.writeThoughts({
+      reflections: 'Frontmatter shape check'
+    });
+
+    const today = new Date();
+    const dateString = getFormattedDate(today);
+    const userDayDir = path.join(userTempDir, '.private-journal', dateString);
+    const userFiles = await fs.readdir(userDayDir);
+    const mdFile = userFiles.find(f => f.endsWith('.md'))!;
+    const fileContent = await fs.readFile(path.join(userDayDir, mdFile), 'utf8');
+
+    const lines = fileContent.split('\n');
+    expect(lines[0]).toBe('---');
+    expect(lines[1]).toMatch(/^title: ".*"$/);
+    expect(lines[2]).toMatch(/^date: \d{4}-\d{2}-\d{2}T/);
+    expect(lines[3]).toMatch(/^timestamp: \d+$/);
+    expect(lines[4]).toBe('---');
+  });
+
+  test('writeThoughts produces distinct filenames for rapid successive writes', async () => {
+    await journalManager.writeThoughts({ reflections: 'First rapid entry' });
+    await journalManager.writeThoughts({ reflections: 'Second rapid entry' });
+
+    const today = new Date();
+    const dateString = getFormattedDate(today);
+    const userDayDir = path.join(userTempDir, '.private-journal', dateString);
+    const userFiles = await fs.readdir(userDayDir);
+
+    const mdFiles = userFiles.filter(f => f.endsWith('.md'));
+    expect(mdFiles).toHaveLength(2);
+    expect(mdFiles[0]).not.toEqual(mdFiles[1]);
+  });
+
   test('writes user thoughts to user directory', async () => {
     const thoughts = {
       reflections: 'I feel great about this feature',
