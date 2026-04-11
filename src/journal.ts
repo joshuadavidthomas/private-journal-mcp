@@ -18,24 +18,6 @@ export class JournalManager {
     this.embeddingService = EmbeddingService.getInstance();
   }
 
-  async writeEntry(content: string): Promise<void> {
-    const timestamp = new Date();
-    const dateString = this.formatDate(timestamp);
-    const timeString = this.formatTimestamp(timestamp);
-    
-    const dayDirectory = path.join(this.projectJournalPath, dateString);
-    const fileName = `${timeString}.md`;
-    const filePath = path.join(dayDirectory, fileName);
-
-    await this.ensureDirectoryExists(dayDirectory);
-    
-    const formattedEntry = this.formatEntry(content, timestamp);
-    await fs.writeFile(filePath, formattedEntry, 'utf8');
-
-    // Generate and save embedding
-    await this.generateEmbeddingForEntry(filePath, formattedEntry, timestamp);
-  }
-
   async writeThoughts(thoughts: {
     reflections?: string;
     observations?: string;
@@ -81,29 +63,6 @@ export class JournalManager {
     const seconds = String(date.getSeconds()).padStart(2, '0');
     const microseconds = String(date.getMilliseconds() * 1000 + Math.floor(Math.random() * 1000)).padStart(6, '0');
     return `${hours}-${minutes}-${seconds}-${microseconds}`;
-  }
-
-  private formatEntry(content: string, timestamp: Date): string {
-    const timeDisplay = timestamp.toLocaleTimeString('en-US', { 
-      hour12: true, 
-      hour: 'numeric', 
-      minute: '2-digit', 
-      second: '2-digit' 
-    });
-    const dateDisplay = timestamp.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
-    });
-
-    return `---
-title: "${timeDisplay} - ${dateDisplay}"
-date: ${timestamp.toISOString()}
-timestamp: ${timestamp.getTime()}
----
-
-${content}
-`;
   }
 
   private async writeThoughtsToLocation(

@@ -1,7 +1,7 @@
 {
   "name": "private-journal-mcp",
   "version": "1.2.0",
-  "description": "A lightweight MCP server that provides Claude with a private journaling capability to process feelings and thoughts",
+  "description": "A lightweight MCP server that provides Claude with a private journaling and reflection capability",
   "type": "module",
   "main": "dist/index.js",
   "bin": {

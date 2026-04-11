@@ -36,7 +36,7 @@ This is an MCP (Model Context Protocol) server that provides Claude with private
 
 **Core Components:**
 - `src/index.ts` - CLI entry point with intelligent path resolution for journal storage
-- `src/server.ts` - MCP server using stdio transport with single `process_feelings` tool
+- `src/server.ts` - MCP server using stdio transport with private journaling and search tools
 - `src/journal.ts` - File system operations for timestamped markdown entries
 - `src/types.ts` - TypeScript interfaces for the domain model
 
@@ -44,7 +44,7 @@ This is an MCP (Model Context Protocol) server that provides Claude with private
 - **Path Resolution Strategy**: `PRIVATE_JOURNAL_PATH` env var overrides all resolution; otherwise falls back through CWD → HOME → temp directories, avoiding system roots
 - **Timestamped Storage**: Uses `YYYY-MM-DD/HH-MM-SS-μμμμμμ.md` structure with microsecond precision
 - **YAML Frontmatter**: Each entry includes structured metadata (title, ISO date, Unix timestamp)
-- **MCP Tool Pattern**: Single tool registration with schema validation and error handling
+- **MCP Tool Pattern**: Tool registration with schema validation and error handling
 
 **File Organization:**
 - **Project journals**: `.private-journal/` in project root for project-specific notes
