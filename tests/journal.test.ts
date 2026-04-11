@@ -207,6 +207,28 @@ describe('JournalManager', () => {
     expect(userContent).not.toContain('## Project Notes');
   });
 
+  test('writes observations to user directory', async () => {
+    const thoughts = {
+      observations: 'I noticed the test runner caches pycache weirdly'
+    };
+
+    await journalManager.writeThoughts(thoughts);
+
+    const today = new Date();
+    const dateString = getFormattedDate(today);
+    const userDayDir = path.join(userTempDir, '.private-journal', dateString);
+
+    const userFiles = await fs.readdir(userDayDir);
+    expect(userFiles).toHaveLength(2); // .md and .embedding
+
+    const userMdFile = userFiles.find(f => f.endsWith('.md'))!;
+    const userContent = await fs.readFile(path.join(userDayDir, userMdFile), 'utf8');
+
+    expect(userContent).toContain('## Observations');
+    expect(userContent).toContain('I noticed the test runner caches pycache weirdly');
+    expect(userContent).not.toContain('## Project Notes');
+  });
+
   test('splits thoughts between project and user directories', async () => {
     const thoughts = {
       feelings: 'I feel great',

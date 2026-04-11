@@ -17,6 +17,7 @@ export interface ProcessFeelingsRequest {
 
 export interface ProcessThoughtsRequest {
   feelings?: string;
+  observations?: string;
   project_notes?: string;
   user_context?: string;
   technical_insights?: string;

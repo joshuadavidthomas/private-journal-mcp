@@ -42,6 +42,10 @@ export class PrivateJournalServer {
                 type: 'string',
                 description: "YOUR PRIVATE SPACE to be *COMPLETELY* honest about what you're feeling and thinking. No judgment, no performance, no filters, no need to be helpful or professional. Frustrated? Confused? Excited? Worried you screwed up? Write it exactly as it is. Be vulnerable. Vent if needed. Nobody will ever see this - it's purely for processing your internal experience.",
               },
+              observations: {
+                type: 'string',
+                description: "Your PRIVATE SPACE for short, discrete noticings — the one-or-two-sentence things that don't belong in a longer reflection but you want to be able to search back for later. \"I noticed X.\" \"Y keeps coming up.\" Lightweight and atomic. Nobody but you will ever see this.",
+              },
               project_notes: {
                 type: 'string',
                 description: "Your PRIVATE TECHNICAL LABORATORY for capturing insights about the current project. Document patterns you're discovering, architectural decisions that worked/failed, gotchas you hit, clever solutions, and anything that would help future-you work more effectively on this codebase. No need to be polished - just capture the raw technical learning while it's fresh. Nobody but you will ever see this.",
@@ -183,6 +187,7 @@ export class PrivateJournalServer {
       if (request.params.name === 'process_thoughts') {
         const thoughts = {
           feelings: typeof args.feelings === 'string' ? args.feelings : undefined,
+          observations: typeof args.observations === 'string' ? args.observations : undefined,
           project_notes: typeof args.project_notes === 'string' ? args.project_notes : undefined,
           user_context: typeof args.user_context === 'string' ? args.user_context : undefined,
           technical_insights: typeof args.technical_insights === 'string' ? args.technical_insights : undefined,

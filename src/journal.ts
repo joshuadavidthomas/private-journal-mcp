@@ -38,6 +38,7 @@ export class JournalManager {
 
   async writeThoughts(thoughts: {
     feelings?: string;
+    observations?: string;
     project_notes?: string;
     user_context?: string;
     technical_insights?: string;
@@ -49,6 +50,7 @@ export class JournalManager {
     const projectThoughts = { project_notes: thoughts.project_notes };
     const userThoughts = {
       feelings: thoughts.feelings,
+      observations: thoughts.observations,
       user_context: thoughts.user_context,
       technical_insights: thoughts.technical_insights,
       world_knowledge: thoughts.world_knowledge
@@ -107,6 +109,7 @@ ${content}
   private async writeThoughtsToLocation(
     thoughts: {
       feelings?: string;
+      observations?: string;
       project_notes?: string;
       user_context?: string;
       technical_insights?: string;
@@ -133,6 +136,7 @@ ${content}
 
   private formatThoughts(thoughts: {
     feelings?: string;
+    observations?: string;
     project_notes?: string;
     user_context?: string;
     technical_insights?: string;
@@ -155,7 +159,11 @@ ${content}
     if (thoughts.feelings) {
       sections.push(`## Feelings\n\n${thoughts.feelings}`);
     }
-    
+
+    if (thoughts.observations) {
+      sections.push(`## Observations\n\n${thoughts.observations}`);
+    }
+
     if (thoughts.project_notes) {
       sections.push(`## Project Notes\n\n${thoughts.project_notes}`);
     }
