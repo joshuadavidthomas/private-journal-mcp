@@ -179,12 +179,12 @@ describe('JournalManager', () => {
 
     expect(projectContent).toContain('## Project Notes');
     expect(projectContent).toContain('The architecture is solid');
-    expect(projectContent).not.toContain('## Feelings');
+    expect(projectContent).not.toContain('## Reflections');
   });
 
   test('writes user thoughts to user directory', async () => {
     const thoughts = {
-      feelings: 'I feel great about this feature',
+      reflections: 'I feel great about this feature',
       technical_insights: 'TypeScript interfaces are powerful'
     };
 
@@ -199,8 +199,8 @@ describe('JournalManager', () => {
 
     const userMdFile = userFiles.find(f => f.endsWith('.md'))!;
     const userContent = await fs.readFile(path.join(userDayDir, userMdFile), 'utf8');
-    
-    expect(userContent).toContain('## Feelings');
+
+    expect(userContent).toContain('## Reflections');
     expect(userContent).toContain('I feel great about this feature');
     expect(userContent).toContain('## Technical Insights');
     expect(userContent).toContain('TypeScript interfaces are powerful');
@@ -231,18 +231,18 @@ describe('JournalManager', () => {
 
   test('splits thoughts between project and user directories', async () => {
     const thoughts = {
-      feelings: 'I feel great',
+      reflections: 'I feel great',
       project_notes: 'The architecture is solid',
       user_context: 'Jesse prefers simple solutions',
       technical_insights: 'TypeScript is powerful',
       world_knowledge: 'Git workflows matter'
     };
-    
+
     await journalManager.writeThoughts(thoughts);
 
     const today = new Date();
     const dateString = getFormattedDate(today);
-    
+
     // Check project directory
     const projectDayDir = path.join(projectTempDir, dateString);
     const projectFiles = await fs.readdir(projectDayDir);
@@ -252,7 +252,7 @@ describe('JournalManager', () => {
     const projectContent = await fs.readFile(path.join(projectDayDir, projectMdFile), 'utf8');
     expect(projectContent).toContain('## Project Notes');
     expect(projectContent).toContain('The architecture is solid');
-    expect(projectContent).not.toContain('## Feelings');
+    expect(projectContent).not.toContain('## Reflections');
 
     // Check user directory
     const userDayDir = path.join(userTempDir, '.private-journal', dateString);
@@ -261,7 +261,7 @@ describe('JournalManager', () => {
 
     const userMdFile = userFiles.find(f => f.endsWith('.md'))!;
     const userContent = await fs.readFile(path.join(userDayDir, userMdFile), 'utf8');
-    expect(userContent).toContain('## Feelings');
+    expect(userContent).toContain('## Reflections');
     expect(userContent).toContain('## User Context');
     expect(userContent).toContain('## Technical Insights');
     expect(userContent).toContain('## World Knowledge');
@@ -323,7 +323,7 @@ describe('JournalManager', () => {
     const customJournalManager = new JournalManager(projectTempDir, customUserDir);
     
     try {
-      const thoughts = { feelings: 'Testing custom path' };
+      const thoughts = { reflections: 'Testing custom path' };
       await customJournalManager.writeThoughts(thoughts);
 
       const today = new Date();

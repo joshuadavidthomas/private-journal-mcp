@@ -61,7 +61,7 @@ date: 2025-05-31T12:00:00.000Z
 timestamp: 1717056000000
 ---
 
-## Feelings
+## Reflections
 
 I feel great about this feature implementation.
 
@@ -70,11 +70,11 @@ I feel great about this feature implementation.
 TypeScript interfaces are really powerful for maintaining code quality.`;
 
     const { text, sections } = embeddingService.extractSearchableText(markdown);
-    
+
     expect(text).toContain('I feel great about this feature implementation');
     expect(text).toContain('TypeScript interfaces are really powerful');
     expect(text).not.toContain('title: "Test Entry"');
-    expect(sections).toEqual(['Feelings', 'Technical Insights']);
+    expect(sections).toEqual(['Reflections', 'Technical Insights']);
   });
 
   test('cosine similarity calculation works correctly', async () => {
@@ -93,34 +93,34 @@ TypeScript interfaces are really powerful for maintaining code quality.`;
 
   test('journal manager generates embeddings when writing thoughts', async () => {
     const thoughts = {
-      feelings: 'I feel excited about implementing this search feature',
+      reflections: 'I feel excited about implementing this search feature',
       technical_insights: 'Vector embeddings provide semantic understanding of text'
     };
-    
+
     await journalManager.writeThoughts(thoughts);
-    
+
     // Check that embedding files were created
     const today = new Date();
     const dateString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-    
-    // Check user directory for feelings and technical_insights
+
+    // Check user directory for reflections and technical_insights
     const userDayDir = path.join(userTempDir, '.private-journal', dateString);
     const userFiles = await fs.readdir(userDayDir);
-    
+
     const userMdFile = userFiles.find(f => f.endsWith('.md'));
     const userEmbeddingFile = userFiles.find(f => f.endsWith('.embedding'));
-    
+
     expect(userMdFile).toBeDefined();
     expect(userEmbeddingFile).toBeDefined();
-    
+
     if (userEmbeddingFile) {
       const embeddingContent = await fs.readFile(path.join(userDayDir, userEmbeddingFile), 'utf8');
       const embeddingData = JSON.parse(embeddingContent);
-      
+
       expect(embeddingData.embedding).toBeDefined();
       expect(Array.isArray(embeddingData.embedding)).toBe(true);
       expect(embeddingData.text).toContain('excited about implementing');
-      expect(embeddingData.sections).toContain('Feelings');
+      expect(embeddingData.sections).toContain('Reflections');
       expect(embeddingData.sections).toContain('Technical Insights');
     }
   }, 60000);
@@ -128,7 +128,7 @@ TypeScript interfaces are really powerful for maintaining code quality.`;
   test('search service finds semantically similar entries', async () => {
     // Write some test entries
     await journalManager.writeThoughts({
-      feelings: 'I feel frustrated with debugging TypeScript errors'
+      reflections: 'I feel frustrated with debugging TypeScript errors'
     });
     
     await journalManager.writeThoughts({
@@ -161,7 +161,7 @@ TypeScript interfaces are really powerful for maintaining code quality.`;
     });
     
     await journalManager.writeThoughts({
-      feelings: 'I enjoy working with modern JavaScript frameworks'
+      reflections: 'I enjoy working with modern JavaScript frameworks'
     });
 
     await new Promise(resolve => setTimeout(resolve, 2000));

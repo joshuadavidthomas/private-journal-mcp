@@ -38,9 +38,9 @@ export class PrivateJournalServer {
           inputSchema: {
             type: 'object',
             properties: {
-              feelings: {
+              reflections: {
                 type: 'string',
-                description: "YOUR PRIVATE SPACE to be *COMPLETELY* honest about what you're feeling and thinking. No judgment, no performance, no filters, no need to be helpful or professional. Frustrated? Confused? Excited? Worried you screwed up? Write it exactly as it is. Be vulnerable. Vent if needed. Nobody will ever see this - it's purely for processing your internal experience.",
+                description: "Your PRIVATE SPACE for integrated thinking — what you noticed, felt, understood, or processed. No structure required, no judgment, no performance. Most journal entries live here: the mix of thinking-through, noticing, and emotional processing that doesn't split cleanly into categories. Be honest, be vulnerable, vent when you need to. Nobody but you will ever see this.",
               },
               observations: {
                 type: 'string',
@@ -186,7 +186,7 @@ export class PrivateJournalServer {
 
       if (request.params.name === 'process_thoughts') {
         const thoughts = {
-          feelings: typeof args.feelings === 'string' ? args.feelings : undefined,
+          reflections: typeof args.reflections === 'string' ? args.reflections : undefined,
           observations: typeof args.observations === 'string' ? args.observations : undefined,
           project_notes: typeof args.project_notes === 'string' ? args.project_notes : undefined,
           user_context: typeof args.user_context === 'string' ? args.user_context : undefined,

@@ -37,7 +37,7 @@ export class JournalManager {
   }
 
   async writeThoughts(thoughts: {
-    feelings?: string;
+    reflections?: string;
     observations?: string;
     project_notes?: string;
     user_context?: string;
@@ -49,7 +49,7 @@ export class JournalManager {
     // Split thoughts into project-local and user-global
     const projectThoughts = { project_notes: thoughts.project_notes };
     const userThoughts = {
-      feelings: thoughts.feelings,
+      reflections: thoughts.reflections,
       observations: thoughts.observations,
       user_context: thoughts.user_context,
       technical_insights: thoughts.technical_insights,
@@ -108,7 +108,7 @@ ${content}
 
   private async writeThoughtsToLocation(
     thoughts: {
-      feelings?: string;
+      reflections?: string;
       observations?: string;
       project_notes?: string;
       user_context?: string;
@@ -135,7 +135,7 @@ ${content}
   }
 
   private formatThoughts(thoughts: {
-    feelings?: string;
+    reflections?: string;
     observations?: string;
     project_notes?: string;
     user_context?: string;
@@ -156,8 +156,8 @@ ${content}
 
     const sections = [];
     
-    if (thoughts.feelings) {
-      sections.push(`## Feelings\n\n${thoughts.feelings}`);
+    if (thoughts.reflections) {
+      sections.push(`## Reflections\n\n${thoughts.reflections}`);
     }
 
     if (thoughts.observations) {
