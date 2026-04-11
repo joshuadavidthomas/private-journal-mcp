@@ -34,7 +34,7 @@ export class PrivateJournalServer {
       tools: [
         {
           name: 'process_thoughts',
-          description: "Your PRIVATE JOURNAL for learning and reflection. Write to any combination of these completely private spaces. Nobody but you will ever see this. Use it to clarify your thoughts and feelings and to record observations.",
+          description: "Your PRIVATE JOURNAL for learning and reflection. Write to any combination of these completely private spaces. Nobody but you will ever see this. Use it to clarify your thoughts and reflections and to record observations.",
           inputSchema: {
             type: 'object',
             properties: {
@@ -90,7 +90,7 @@ export class PrivateJournalServer {
               sections: {
                 type: 'array',
                 items: { type: 'string' },
-                description: "Filter by section types (e.g., ['feelings', 'technical_insights'])",
+                description: "Filter by section types (e.g., ['reflections', 'technical_insights'])",
               },
             },
             required: ['query'],

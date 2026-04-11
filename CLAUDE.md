@@ -59,7 +59,7 @@ This is an MCP (Model Context Protocol) server that provides Claude with private
 The server provides comprehensive journaling and search capabilities through these tools:
 
 **Core Journaling:**
-- `process_thoughts` - Multi-section private journaling with categories for feelings, project notes, user context, technical insights, and world knowledge
+- `process_thoughts` - Multi-section private journaling with categories for reflections, observations, project notes, user context, technical insights, and world knowledge
 
 **Search & Retrieval:**
 - `search_journal` - Natural language semantic search across all journal entries using local AI embeddings

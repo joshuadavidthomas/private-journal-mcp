@@ -1,11 +1,11 @@
 # Private Journal MCP Server
 
-A comprehensive MCP (Model Context Protocol) server that provides Claude with private journaling and semantic search capabilities for processing thoughts, feelings, and insights.
+A comprehensive MCP (Model Context Protocol) server that provides Claude with private journaling and semantic search capabilities for processing thoughts, reflections, and insights.
 
 ## Features
 
 ### Journaling
-- **Multi-section journaling**: Separate categories for feelings, project notes, user context, technical insights, and world knowledge
+- **Multi-section journaling**: Separate categories for reflections, observations, project notes, user context, technical insights, and world knowledge
 - **Dual storage**: Project notes stay with projects, personal thoughts in user home directory
 - **Timestamped entries**: Each entry automatically dated with microsecond precision
 - **YAML frontmatter**: Structured metadata for each entry
@@ -86,7 +86,8 @@ The server provides comprehensive journaling and search capabilities:
 
 ### `process_thoughts`
 Multi-section private journaling with these optional categories:
-- **feelings**: Private emotional processing space
+- **reflections**: Integrated thinking — what you noticed, felt, understood, or processed
+- **observations**: Short, discrete noticings — one or two sentences each
 - **project_notes**: Technical insights specific to current project  
 - **user_context**: Notes about collaborating with humans
 - **technical_insights**: General software engineering learnings
@@ -139,7 +140,7 @@ date: 2025-05-31T14:30:45.123Z
 timestamp: 1717160645123
 ---
 
-## Feelings
+## Reflections
 
 I'm excited about this new search feature...
 
