@@ -3,7 +3,6 @@
 
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { JournalEntry } from './types.js';
 import { resolveUserJournalPath } from './paths.js';
 import { EmbeddingService, EmbeddingData } from './embeddings.js';
 
@@ -215,7 +214,7 @@ ${sections.join('\n\n')}
           }
         }
       } catch (error) {
-        if ((error as any)?.code !== 'ENOENT') {
+        if ((error as NodeJS.ErrnoException)?.code !== 'ENOENT') {
           console.error(`Failed to scan ${basePath} for missing embeddings:`, error);
         }
       }

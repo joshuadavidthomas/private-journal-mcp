@@ -3,7 +3,6 @@
 
 import { pipeline, FeatureExtractionPipeline } from '@xenova/transformers';
 import * as fs from 'fs/promises';
-import * as path from 'path';
 
 export interface EmbeddingData {
   embedding: number[];
@@ -30,7 +29,7 @@ export class EmbeddingService {
   }
 
   static resetInstance(): void {
-    EmbeddingService.instance = undefined as any;
+    EmbeddingService.instance = undefined as unknown as EmbeddingService;
   }
 
   async initialize(): Promise<void> {
@@ -119,7 +118,7 @@ export class EmbeddingService {
       const content = await fs.readFile(embeddingPath, 'utf8');
       return JSON.parse(content);
     } catch (error) {
-      if ((error as any)?.code === 'ENOENT') {
+      if ((error as NodeJS.ErrnoException)?.code === 'ENOENT') {
         return null; // File doesn't exist
       }
       throw error;
