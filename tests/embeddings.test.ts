@@ -241,6 +241,83 @@ TypeScript interfaces are really powerful for maintaining code quality.`;
     });
   });
 
+  describe('readEntry', () => {
+    test('reads a journal entry', async () => {
+      const entryPath = path.join(projectTempDir, '2025-05-31', '12-00-00-000000.md');
+      await fs.mkdir(path.dirname(entryPath), { recursive: true });
+      await fs.writeFile(entryPath, '# real journal entry', 'utf8');
+
+      const content = await searchService.readEntry(entryPath);
+
+      expect(content).toBe('# real journal entry');
+    });
+
+    test('returns null when the entry does not exist', async () => {
+      const missing = path.join(projectTempDir, '2025-05-31', 'does-not-exist.md');
+
+      const content = await searchService.readEntry(missing);
+
+      expect(content).toBeNull();
+    });
+
+    test('rejects a path outside the journal directories', async () => {
+      const outsideDir = await fs.mkdtemp(path.join(os.tmpdir(), 'journal-other-test-'));
+      const otherFile = path.join(outsideDir, 'other.md');
+      await fs.writeFile(otherFile, 'other file contents', 'utf8');
+
+      try {
+        await expect(searchService.readEntry(otherFile)).rejects.toThrow(
+          /not a readable journal entry/
+        );
+      } finally {
+        await fs.rm(outsideDir, { recursive: true, force: true });
+      }
+    });
+
+    test('rejects a path that resolves outside the journal directories', async () => {
+      const outsideDir = await fs.mkdtemp(path.join(os.tmpdir(), 'journal-other-test-'));
+      const otherFile = path.join(outsideDir, 'other.md');
+      await fs.writeFile(otherFile, 'other file contents', 'utf8');
+      // Built with Array.join (not path.join) so the literal '..' reaches
+      // readEntry unnormalized.
+      const unnormalizedPath = [projectTempDir, '..', path.basename(outsideDir), 'other.md'].join(path.sep);
+
+      try {
+        await expect(searchService.readEntry(unnormalizedPath)).rejects.toThrow(
+          /not a readable journal entry/
+        );
+      } finally {
+        await fs.rm(outsideDir, { recursive: true, force: true });
+      }
+    });
+
+    test('rejects a non-Markdown path', async () => {
+      const otherFile = path.join(projectTempDir, 'notes.txt');
+      await fs.writeFile(otherFile, 'plain text', 'utf8');
+
+      await expect(searchService.readEntry(otherFile)).rejects.toThrow(
+        /not a readable journal entry/
+      );
+    });
+
+    test('rejects a symlink that resolves outside the journal directories', async () => {
+      const outsideDir = await fs.mkdtemp(path.join(os.tmpdir(), 'journal-link-test-'));
+      const otherFile = path.join(outsideDir, 'other.md');
+      await fs.writeFile(otherFile, 'other file contents', 'utf8');
+
+      const dayDir = path.join(projectTempDir, '2025-05-31');
+      await fs.mkdir(dayDir, { recursive: true });
+      const linkPath = path.join(dayDir, 'link.md');
+      await fs.symlink(otherFile, linkPath);
+
+      try {
+        await expect(searchService.readEntry(linkPath)).rejects.toThrow(/not a readable journal entry/);
+      } finally {
+        await fs.rm(outsideDir, { recursive: true, force: true });
+      }
+    });
+  });
+
   describe('initialization timeout', () => {
     let originalPipelineMock: jest.Mock;
 

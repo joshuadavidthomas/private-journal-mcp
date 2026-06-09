@@ -183,14 +183,63 @@ export class SearchService {
   }
 
   async readEntry(filePath: string): Promise<string | null> {
+    const resolvedPath = path.resolve(filePath);
+
+    // Only Markdown entries under the journal directories are readable; reject
+    // anything else with a clear error.
+    if (path.extname(resolvedPath).toLowerCase() !== '.md') {
+      throw new Error(`${resolvedPath} is not a readable journal entry`);
+    }
+    if (!this.isUnderJournalRoot(resolvedPath, this.journalRoots())) {
+      throw new Error(`${resolvedPath} is not a readable journal entry`);
+    }
+
+    let realPath: string;
     try {
-      return await fs.readFile(filePath, 'utf8');
+      realPath = await fs.realpath(resolvedPath);
     } catch (error) {
-      if ((error as any)?.code === 'ENOENT') {
+      if ((error as NodeJS.ErrnoException)?.code === 'ENOENT') {
         return null;
       }
       throw error;
     }
+
+    // Resolve symlinks and confirm the real file is still under a journal
+    // directory before reading.
+    if (!this.isUnderJournalRoot(realPath, await this.realJournalRoots())) {
+      throw new Error(`${resolvedPath} is not a readable journal entry`);
+    }
+
+    try {
+      return await fs.readFile(realPath, 'utf8');
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException)?.code === 'ENOENT') {
+        return null;
+      }
+      throw error;
+    }
+  }
+
+  private journalRoots(): string[] {
+    return [this.projectPath, this.userPath].map(root => path.resolve(root));
+  }
+
+  private async realJournalRoots(): Promise<string[]> {
+    const roots: string[] = [];
+    for (const root of this.journalRoots()) {
+      try {
+        roots.push(await fs.realpath(root));
+      } catch {
+        // A journal root that doesn't exist on disk can't contain anything.
+      }
+    }
+    return roots;
+  }
+
+  private isUnderJournalRoot(candidate: string, roots: string[]): boolean {
+    return roots.some(
+      root => candidate === root || candidate.startsWith(root + path.sep)
+    );
   }
 
   private async loadEmbeddingsFromPath(
@@ -226,7 +275,7 @@ export class SearchService {
         }
       }
     } catch (error) {
-      if ((error as any)?.code !== 'ENOENT') {
+      if ((error as NodeJS.ErrnoException)?.code !== 'ENOENT') {
         console.error(`Failed to read embeddings from ${basePath}:`, error);
       }
       // Return empty array if directory doesn't exist
