@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.0.1] - 2026-06-12
+
+### Fixed
+
+- ESLint configuration now loads under `"type": "module"` (`.eslintrc.js` →
+  `.eslintrc.cjs`, corrected `extends`), and the pre-existing lint errors it
+  surfaced are cleared (unused imports; `error as any` → `error as NodeJS.ErrnoException`).
+
 ## [2.0.0] - 2026-04-11
 
 ### Why this release
